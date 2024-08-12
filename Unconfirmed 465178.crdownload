@@ -1,0 +1,237 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[2]:
+
+
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from sklearn import svm
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+
+
+# In[3]:
+
+
+df = pd.read_csv(r"C:\Users\nikhi\Downloads\diabetes.csv")
+
+
+# ## Data Analysis
+
+# In[4]:
+
+
+df.head()
+
+
+# In[5]:
+
+
+df.shape
+
+
+# In[6]:
+
+
+df.describe()
+
+
+# In[7]:
+
+
+df['Outcome'].value_counts()
+
+
+# In[8]:
+
+
+df.groupby('Outcome').mean()
+
+
+# ### Separating the data and labels
+
+# In[9]:
+
+
+x = df.drop(columns = 'Outcome',axis = 1)
+y = df['Outcome']
+
+
+# ## Data Standardization
+
+# In[10]:
+
+
+scaler = StandardScaler()
+
+
+# In[11]:
+
+
+scaler.fit(x)
+
+
+# In[12]:
+
+
+standardized_data = scaler.transform(x)
+
+
+# In[13]:
+
+
+print(standardized_data)
+
+
+# In[14]:
+
+
+x = standardized_data
+y = df['Outcome']
+
+
+# In[15]:
+
+
+print(x)
+print(y)
+
+
+# ## Train Test Split
+
+# In[16]:
+
+
+x_train,x_test,y_train,y_test = train_test_split(x,y,test_size = 0.2,stratify=y,random_state=2)
+
+
+# In[17]:
+
+
+print(x.shape, x_train.shape,x_test.shape)
+
+
+# ## Training The Model
+
+# In[19]:
+
+
+classifier = svm.SVC(kernel='linear')
+
+
+# ## Training the support vector machine classifier
+
+# In[20]:
+
+
+classifier.fit(x_train,y_train)
+
+
+# ## Model Evaluation
+
+# ### Accuracy Score
+
+# ## accuracy score on the training data
+
+# In[21]:
+
+
+x_train_predction = classifier.predict(x_train)
+training_data_accuracy = accuracy_score(x_train_predction,y_train)
+
+
+# In[22]:
+
+
+print("Accuracy score of the training data: ",training_data_accuracy)
+
+
+# In[24]:
+
+
+x_test_predction = classifier.predict(x_test)
+testing_data_accuracy = accuracy_score(x_test_predction,y_test)
+
+
+# In[25]:
+
+
+print("Accuracy score of the test data: ",testing_data_accuracy)
+
+
+# ## Making a Predictive Syatem
+
+# In[36]:
+
+
+input_data = (7,196,90,0,0,39.8,0.451,41)
+
+#changing the input data to numpy array
+input_data_as_numpy_array = np.asarray(input_data)
+
+#reshape the array as we are predicting for one instance
+input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
+
+#standardize the input data
+#std_data = scaler.transform(input_data_reshaped)
+#print(std_data)
+
+prediction = classifier.predict(input_data_reshaped)
+print(prediction)
+
+if (prediction[0]==0):
+    print("The persion is non-Diabetic")
+else:
+    print("The person the Diabetic")
+
+
+# ## Saving the trained model
+
+# In[38]:
+
+
+import pickle
+
+
+# In[39]:
+
+
+filename = 'trained_model.sav'
+pickle.dump(classifier,open(filename, 'wb'))
+
+
+# ## Loading the saved model
+
+# In[41]:
+
+
+loded_model = pickle.load(open('trained_model.sav','rb'))
+
+
+# In[42]:
+
+
+input_data = (7,196,90,0,0,39.8,0.451,41)
+
+#changing the input data to numpy array
+input_data_as_numpy_array = np.asarray(input_data)
+
+#reshape the array as we are predicting for one instance
+input_data_reshaped = input_data_as_numpy_array.reshape(1,-1)
+
+prediction = loded_model.predict(input_data_reshaped)
+print(prediction)
+
+if (prediction[0]==0):
+    print("The persion is non-Diabetic")
+else:
+    print("The person the Diabetic")
+
+
+# In[ ]:
+
+
+
+
